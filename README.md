@@ -1,9 +1,12 @@
 # Kelly Gambling Theory
 
-Simulation Monte Carlo du critère de Kelly appliqué à un jeu de pari répété
-(pile ou face biaisé). Le script compare la fraction de Kelly (croissance
-optimale du capital à long terme) à une mise plus agressive, et illustre le
-compromis rendement / risque de ruine.
+Simulations Monte Carlo autour des stratégies de mise en pari répété (pile ou
+face biaisé) :
+
+- [main.py](main.py) — critère de Kelly (croissance optimale du capital à
+  long terme) comparé à une mise plus agressive.
+- [martingale.py](martingale.py) — stratégie de Martingale (doublement de la
+  mise après chaque perte).
 
 Référence théorique : `2006-thorp.pdf` (Edward Thorp, *The Kelly Criterion in
 Blackjack, Sports Betting, and the Stock Market*).
@@ -39,6 +42,7 @@ uv sync
 
 ```bash
 uv run main.py
+uv run martingale.py
 ```
 
 Les paramètres (`p`, `b`, `n`, `nruns`, `ruin_threshold`) sont définis dans le
@@ -67,3 +71,21 @@ trois graphiques matplotlib :
 
 Les fonctions de simulation sont compilées via `numba.jit(nopython=True)`
 pour accélérer les boucles Monte Carlo.
+
+## Structure de `martingale.py`
+
+La Martingale consiste à doubler la mise après chaque perte, afin de
+récupérer les pertes cumulées dès la première victoire (mise remise à sa
+valeur initiale après un gain).
+
+| Fonction | Rôle |
+| --- | --- |
+| `martingale_strategy(bankroll, bet_size, win_probability)` | Simule la stratégie jusqu'à ruine (`bankroll <= 0`) et renvoie l'historique du capital et de la mise |
+| `martingale_with_stop(bankroll, bet_size, win_probability)` | Simule une série de pertes jusqu'à la première victoire et renvoie `(duration, bankroll_final, bet_size_final)` |
+| `main_martigale_strategy()` | Trace l'évolution du capital et de la mise courante pour une simulation de `martingale_strategy` |
+| `main_martingale_with_stop()` | Lance une simulation unique de `martingale_with_stop` (bankroll initial nul) et renvoie `(duration, bankroll_final, bet_size_final)` |
+| `stat_with_stop()` | Moyenne `duration`, `bankroll_final` et `bet_size_final` sur `N = 10000` répétitions de `main_martingale_with_stop` |
+
+Le point d'entrée `if __name__ == "__main__":` appelle `stat_with_stop()` et
+affiche la durée moyenne, le capital final moyen et la mise finale moyenne
+d'une série de pertes avant la première victoire.

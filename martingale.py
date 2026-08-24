@@ -32,36 +32,39 @@ def martingale_strategy(bankroll, bet_size, win_probability):
     return bankroll_values, current_bet_size_values
 
 @numba.jit(nopython=True,fastmath=True)
-def martingale_with_stop(bet_size, win_probability):
+def martingale_with_stop(bankroll, bet_size, win_probability):
     """
-    Simulate a Martingale betting strategy.
+    Simulate a Martingale betting strategy. Stop after the first success.
 
     Parameters:  
     - bet_size: Initial bet size.
     - win_probability: Probability of winning a bet.
-    
+    Returns the duration of the betting session until the first success.
   
     """
-  
-    current_bet_size = bet_size   
+    current_bankroll = bankroll
+    current_bet_size = bet_size
     success=False
     duration=0
     while not success:
+        
         duration+=1
-        if np.random.rand() < win_probability:                 
+        if np.random.rand() < win_probability:  
+            current_bankroll += current_bet_size               
             success=True                
         else:
-            current_bet_size=2*current_bet_size
-      
+            current_bankroll -= current_bet_size
+            current_bet_size=2*current_bet_size 
+
        
-    return duration
+    return duration,current_bankroll,current_bet_size
 
 
-def main():
+def main_martigale_strategy():
     bankroll = 1000
     bet_size = 1
     win_probability = 0.5
-    bankroll_values, current_bet_size_values,duration = martingale_strategy(bankroll, bet_size, win_probability)
+    bankroll_values, current_bet_size_values = martingale_strategy(bankroll, bet_size, win_probability)
     #print("Bankroll values over time:", bankroll_values)
     plt.plot(bankroll_values)
     plt.xlabel("Time")
@@ -76,25 +79,31 @@ def main():
     plt.show()
 
 @numba.jit(nopython=True,fastmath=True)
-def main_with_stop():  
+def main_martingale_with_stop():  
     bet_size = 1
     win_probability = 0.5
-    duration = martingale_with_stop(bet_size, win_probability)
-    return duration
+    bankroll = 0
+    final_bankroll = 0
+    final_bet_size = 0
+    duration, final_bankroll, final_bet_size = martingale_with_stop(bankroll, bet_size, win_probability)
+    return duration, final_bankroll, final_bet_size
 
 @numba.jit(nopython=True,fastmath=True)
 def stat_with_stop():
-    N=10000       
-    bet_size = 1
-    win_probability = 0.5
+    N=10000     
     total_duration=0
+    total_bankroll=0
+    total_bet_size=0
     for i in range(N):        
-        duration = martingale_with_stop(bet_size, win_probability)
-        total_duration+=duration    
-
-    return total_duration/N
+        duration,final_bankroll,final_bet_size = main_martingale_with_stop()
+        total_duration+=duration
+        total_bankroll+=final_bankroll
+        total_bet_size+=final_bet_size
+    return total_duration/N, total_bankroll/N, total_bet_size/N
        
    
 if __name__ == "__main__":
-    mean_duration = stat_with_stop()
+    mean_duration, mean_bankroll, mean_bet_size = stat_with_stop()
     print("Mean Duration:", mean_duration)
+    print("Mean Bankroll:", mean_bankroll)
+    print("Mean Bet Size:", mean_bet_size)
