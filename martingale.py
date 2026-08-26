@@ -94,16 +94,31 @@ def stat_with_stop():
     total_duration=0
     total_bankroll=0
     total_bet_size=0
+    max_duration=0
+    max_bankroll=0
+    max_bet_size=0
+   
     for i in range(N):        
         duration,final_bankroll,final_bet_size = main_martingale_with_stop()
+
+        if duration>max_duration:
+            max_duration=duration
+        if final_bankroll>max_bankroll:
+            max_bankroll=final_bankroll
+        if final_bet_size>max_bet_size:
+            max_bet_size=final_bet_size
+
         total_duration+=duration
         total_bankroll+=final_bankroll
         total_bet_size+=final_bet_size
-    return total_duration/N, total_bankroll/N, total_bet_size/N
+    return total_duration/N, total_bankroll/N, total_bet_size/N,max_duration, max_bankroll, max_bet_size
        
    
 if __name__ == "__main__":
-    mean_duration, mean_bankroll, mean_bet_size = stat_with_stop()
+    mean_duration, mean_bankroll, mean_bet_size, max_duration, max_bankroll, max_bet_size = stat_with_stop()
     print("Mean Duration:", mean_duration)
     print("Mean Bankroll:", mean_bankroll)
     print("Mean Bet Size:", mean_bet_size)
+    print("Max Duration:", max_duration)
+    print("Max Bankroll:", max_bankroll)
+    print("Max Bet Size:", max_bet_size)

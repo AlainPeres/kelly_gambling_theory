@@ -84,8 +84,9 @@ valeur initiale après un gain).
 | `martingale_with_stop(bankroll, bet_size, win_probability)` | Simule une série de pertes jusqu'à la première victoire et renvoie `(duration, bankroll_final, bet_size_final)` |
 | `main_martigale_strategy()` | Trace l'évolution du capital et de la mise courante pour une simulation de `martingale_strategy` |
 | `main_martingale_with_stop()` | Lance une simulation unique de `martingale_with_stop` (bankroll initial nul) et renvoie `(duration, bankroll_final, bet_size_final)` |
-| `stat_with_stop()` | Moyenne `duration`, `bankroll_final` et `bet_size_final` sur `N = 10000` répétitions de `main_martingale_with_stop` |
+| `stat_with_stop()` | Sur `N = 10000` répétitions de `main_martingale_with_stop`, calcule la moyenne et le maximum de `duration`, `bankroll_final` et `bet_size_final` |
 
 Le point d'entrée `if __name__ == "__main__":` appelle `stat_with_stop()` et
-affiche la durée moyenne, le capital final moyen et la mise finale moyenne
-d'une série de pertes avant la première victoire.
+affiche, pour une série de pertes avant la première victoire, la durée
+moyenne/maximale, le capital final moyen/maximal et la mise finale
+moyenne/maximale.
